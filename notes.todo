@@ -1,0 +1,31 @@
+# TODO List
+	[ ] Wrangle with base modules and export format to make sure we are starting from a good place and understand the tech stack we are dependent on
+	[ ] [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
+	[ ] [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
+	[ ] [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+
+# Notes
+	[ ] `npx --package yo --package generator-code -- yo code`
+	[ ] Created a Typescript extension, npm package manager, and Webpack packager (and initialized git repo)
+	[ ] Named "TaylorsTools"/"taylors-tools"
+	[ ] This makes a folder named "taylors-tools" so I had to move the contents of that folder up
+	[ ] There are 2 high severtiy vulnerabilities with the list of modules that yo generator used (`npm audit`):
+		diff  6.0.0 - 8.0.2
+		jsdiff has a Denial of Service vulnerability in parsePatch and applyPatch - https://github.com/advisories/GHSA-73rr-hh4g-fpgx
+		fix available via `npm audit fix --force`
+		Will install @vscode/test-cli@0.0.11, which is a breaking change
+		node_modules/diff
+		  mocha  8.0.0 - 12.0.0-beta-3
+		  Depends on vulnerable versions of diff
+		  Depends on vulnerable versions of serialize-javascript
+		  node_modules/mocha
+		    @vscode/test-cli  >=0.0.12
+		    Depends on vulnerable versions of mocha
+		    node_modules/@vscode/test-cli
+		serialize-javascript  <=7.0.2
+		Severity: high
+		Serialize JavaScript is Vulnerable to RCE via RegExp.flags and Date.prototype.toISOString() - https://github.com/advisories/GHSA-5c6j-r48x-rmvq
+		fix available via `npm audit fix --force`
+		Will install @vscode/test-cli@0.0.11, which is a breaking change
+		node_modules/serialize-javascript
+	[ ] VS Code markdown preview: Shift+Ctrl+V
