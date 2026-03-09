@@ -15,8 +15,8 @@
 	"contributes": {
 		"commands": [
 			{
-				"command": "taylors-tools.helloWorld",
-				"title": "Hello World"
+				"command": "taylors-tools.test",
+				"title": "Taylor: Test"
 			}
 		]
 	},

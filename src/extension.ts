@@ -7,16 +7,15 @@ export function activate(context: vscode.ExtensionContext)
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "taylors-tools" is now active!');
 	
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('taylors-tools.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from TaylorsTools!');
-	});
-	
-	context.subscriptions.push(disposable);
+	// +--------------------------------------------------------------+
+	// |                        taylorExt.test                        |
+	// +--------------------------------------------------------------+
+	context.subscriptions.push(vscode.commands.registerCommand('taylors-tools.test', () => {
+		console.log("Wooo hooo taylor");
+		console.error("Oh no taylor!");
+		vscode.window.showInformationMessage('Hello World from Taylor\'s Tools!!! :D Woo hoo');
+		vscode.debug.activeDebugConsole.append("This is a debug console message :O");
+	}));
 }
 
 // This method is called when your extension is deactivated

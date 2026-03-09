@@ -48,6 +48,7 @@
 	[ ] Webpack seems to create a "dist/extension.js" combined Javascript file when we build/run
 	[ ] "https://code.visualstudio.com/api/working-with-extensions/bundling-extension#using-webpack"
 	[ ] See "webpack.config.js" for which .ts file is used as entry point and what folder to output to
+	[ ] For some reason, on the first boot of VS Code it thinks that the webpack "watcher" never exits, but if we select "Debug Anyway" then it works forever more
 	[ ] "devDependencies" that were added to package.json by Yeoman
 		+ "@types/vscode" ^1.109.0
 		+ "@types/mocha" ^10.0.10
