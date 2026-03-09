@@ -15,4 +15,5 @@ vsc-extension-quickstart.md
 **/.vscode-test.*
 *.sublime-*
 *.txt
+!LICENSE.txt
 *.todo

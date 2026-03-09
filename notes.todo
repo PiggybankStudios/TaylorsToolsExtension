@@ -1,9 +1,9 @@
 # TODO List
-	[ ] Change keybindings for VS Code on laptop
+	[X] Change keybindings for VS Code on laptop
 	[ ] Wrangle with base modules and export format to make sure we are starting from a good place and understand the tech stack we are dependent on
 		[ ] What is the "@" prefix in npm dependencies?
 		[ ] Can we decrease the number of dependencies we use?
-		[ ] Can we create a .vsix file?
+		[X] Can we create a .vsix file? `vsce package`
 		[ ] Can we test using `yarn` locally so that we can use `yarn` at work?
 	[ ] Port commands from previous extension:
 		[ ] "taylorExt.test" command
@@ -15,9 +15,9 @@
 		[ ] "taylorExt.generateNums" command
 		[ ] "taylorExt.alignCursors" command
 		[ ] "taylorExt.formatCommentHeader" command
-	[ ] Add a "repository" field to package.json
-	[ ] Add a "LICENSE", "LICENSE.md", or "LICENSE.txt"
-	[ ] Exclude "*.sublime-*" files from the extension packaging process (maybe "package.json"? Maybe "webpack.config.js"?)
+	[X] Add a "repository" field to package.json
+	[X] Add a "LICENSE", "LICENSE.md", or "LICENSE.txt"
+	[X] Exclude "*.sublime-*" files from the extension packaging process (maybe "package.json"? Maybe "webpack.config.js"?)
 	[ ] Read [Keep a Changelog](http://keepachangelog.com/)
 
 # Notes
