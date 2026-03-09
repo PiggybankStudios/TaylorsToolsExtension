@@ -3,7 +3,7 @@
 	"displayName": "TaylorsTools",
 	"description": "A collection of tools that replicate behavior I had in Sublime Text and other editors",
 	"repository": "https://github.com/PiggybankStudios/TaylorsToolsExtension",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"engines": {
 		"vscode": "^1.109.0"
 	},
@@ -17,6 +17,10 @@
 			{
 				"command": "taylors-tools.test",
 				"title": "Taylor: Test"
+			},
+			{
+				"command": "taylors-tools.gotoEmptyLine",
+				"title": "Taylor: Goto Empty Line"
 			}
 		]
 	},
