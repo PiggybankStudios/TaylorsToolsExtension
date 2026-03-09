@@ -1,5 +1,55 @@
 import * as vscode from 'vscode';
 
+//TODO: Do we need to explicitely handle stuff like 0x## or 0b##?
+function my_parseNumber(numStr: string, numType: string): number|null
+{
+	if (numType == "bin")
+	{
+		return parseInt(numStr, 2);
+	}
+	else if (numType == "dec")
+	{
+		return parseInt(numStr, 10);
+	}
+	else if (numType == "hex")
+	{
+		return parseInt(numStr, 16);
+	}
+	else if (numType == "ascii")
+	{
+		return numStr.codePointAt(0) ?? null;
+	}
+	else { return null; }
+}
+function my_encodeNumber(num: number, numType: string) : string|null
+{
+	if (numType == "bin")
+	{
+		var result = num.toString(2);
+		// Pad to whole byte's worth
+		let numZerosToAdd = (8 - (result.length % 8));
+		if (numZerosToAdd < 8) { result = "0".repeat(numZerosToAdd) + result; }
+		return result;
+	}
+	else if (numType == "dec")
+	{
+		return num.toString(10);
+	}
+	else if (numType == "hex")
+	{
+		var result = num.toString(16).toUpperCase();
+		// Pad to whole byte's worth
+		let numZerosToAdd = (2 - (result.length % 2));
+		if (numZerosToAdd < 2) { result = "0".repeat(numZerosToAdd) + result; }
+		return result;
+	}
+	else if (numType == "ascii")
+	{
+		return String.fromCharCode(num);
+	}
+	else { return null; }
+}
+
 // NOTE: Extension is activated the very first time a command is executed
 export function activate(context: vscode.ExtensionContext)
 {
@@ -18,9 +68,16 @@ export function activate(context: vscode.ExtensionContext)
 	}));
 	
 	// +--------------------------------------------------------------+
+	// |                  taylors-tools.centerScreen                  |
+	// +--------------------------------------------------------------+
+	context.subscriptions.push(vscode.commands.registerCommand('taylors-tools.centerScreen', () => {
+		vscode.window.activeTextEditor?.revealRange(vscode.window.activeTextEditor.selection, vscode.TextEditorRevealType.InCenter);
+	}));
+	
+	// +--------------------------------------------------------------+
 	// |                 taylors-tools.gotoEmptyLine                  |
 	// +--------------------------------------------------------------+
-	context.subscriptions.push(vscode.commands.registerTextEditorCommand('taylors-tools.gotoEmptyLine', (textEditor: vscode.TextEditor, edit: vscode.TextEditorEdit, ...args) => {
+	var gotoEmptyLine = (textEditor: vscode.TextEditor, edit: vscode.TextEditorEdit, ...args: any[]) => {
 		var params: any = args[0];
 		var arg_forward: Boolean = (params && params["forward"] !== undefined) ? Boolean(params["forward"]) : true;
 		var arg_select: Boolean = (params && params["select"] !== undefined) ? Boolean(params["select"]) : false;
@@ -41,16 +98,20 @@ export function activate(context: vscode.ExtensionContext)
 				currLineStr = textEditor.document.lineAt(currLineNum);
 			} while (!currLineStr.isEmptyOrWhitespace);
 			
+			var gotoEndOfLine: Boolean = true;
 			if (currLineStr === null) //we reached the beginning/end of the file
 			{
 				if (currLineNum < 0) { currLineNum = 0; }
 				else { currLineNum = textEditor.document.lineCount-1; }
 				currLineStr = textEditor.document.lineAt(currLineNum);
+				if (!arg_forward) { gotoEndOfLine = false; }
 			}
-			if (arg_select) { newSelections.push(new vscode.Selection(sel.anchor, currLineStr.range.end)); }
-			else { newSelections.push(new vscode.Selection(currLineStr.range.end, currLineStr.range.end)); }
-			if (revealRangeMin == null || currLineStr.range.end.isBefore(revealRangeMin)) { revealRangeMin = currLineStr.range.end; }
-			if (revealRangeMax == null || currLineStr.range.end.isAfter(revealRangeMax))  { revealRangeMax = currLineStr.range.end; }
+			var newCursorPosition = (gotoEndOfLine ? currLineStr.range.end : currLineStr.range.start);
+			
+			if (arg_select) { newSelections.push(new vscode.Selection(sel.anchor, newCursorPosition)); }
+			else { newSelections.push(new vscode.Selection(newCursorPosition, newCursorPosition)); }
+			if (revealRangeMin == null || newCursorPosition.isBefore(revealRangeMin)) { revealRangeMin = newCursorPosition; }
+			if (revealRangeMax == null || newCursorPosition.isAfter(revealRangeMax))  { revealRangeMax = newCursorPosition; }
 		}
 		// vscode.window.showInformationMessage("Selections: " + JSON.stringify(newSelections));
 		textEditor.selections = newSelections;
@@ -58,6 +119,115 @@ export function activate(context: vscode.ExtensionContext)
 		{
 			textEditor.revealRange(new vscode.Range(revealRangeMin, revealRangeMax));
 		}
+	};
+	context.subscriptions.push(vscode.commands.registerTextEditorCommand('taylors-tools.gotoEmptyLine', gotoEmptyLine));
+	context.subscriptions.push(vscode.commands.registerTextEditorCommand('taylors-tools.gotoNextEmptyLine', (editor, edit, ...args) => {
+		args[0] = { "forward": true, "select": false };
+		gotoEmptyLine(editor, edit, ...args);
+	}));
+	context.subscriptions.push(vscode.commands.registerTextEditorCommand('taylors-tools.gotoPrevEmptyLine', (editor, edit, ...args) => {
+		args[0] = { "forward": false, "select": false };
+		gotoEmptyLine(editor, edit, ...args);
+	}));
+	context.subscriptions.push(vscode.commands.registerTextEditorCommand('taylors-tools.gotoNextEmptyLineExtend', (editor, edit, ...args) => {
+		args[0] = { "forward": true, "select": true };
+		gotoEmptyLine(editor, edit, ...args);
+	}));
+	context.subscriptions.push(vscode.commands.registerTextEditorCommand('taylors-tools.gotoPrevEmptyLineExtend', (editor, edit, ...args) => {
+		args[0] = { "forward": false, "select": true };
+		gotoEmptyLine(editor, edit, ...args);
+	}));
+	
+	
+	// +--------------------------------------------------------------+
+	// |                 taylors-tools.convertNumber                  |
+	// +--------------------------------------------------------------+
+	var convertNumber = (textEditor: vscode.TextEditor, edit: vscode.TextEditorEdit, ...args: any[]) => {
+		var params: any = args[0];
+		var arg_from: string     = (params && params["from"]     !== undefined) ? String(params["from"]).toLowerCase() : "dec";
+		var arg_to: string       = (params && params["to"]       !== undefined) ? String(params["to"]).toLowerCase() : "hex";
+		var arg_splitter: string = (params && params["splitter"] !== undefined) ? String(params["splitter"]) : "";
+		var arg_prefix: string   = (params && params["prefix"]   !== undefined) ? String(params["prefix"]) : "";
+		var arg_joiner: string   = (params && params["joiner"]   !== undefined) ? String(params["joiner"]) : " ";
+		
+		// vscode.window.showInformationMessage("Converting " + arg_from + " to " + arg_to + (arg_prefix.length != 0 ? " ( prefix \"" + arg_prefix + "\")" : ""));
+		textEditor.selections.forEach(sel =>
+		{
+			// vscode.window.showInformationMessage("sel: " + JSON.stringify(sel));
+			let selectedText: string = textEditor.document.getText(sel);
+			var numbers: number[] = [];
+			if (arg_from == "ascii")
+			{
+				for (var cIndex = 0; cIndex < selectedText.length; cIndex++)
+				{
+					let charValue: number|null = my_parseNumber(selectedText.charAt(cIndex), arg_from);
+					if (charValue === null) { vscode.window.showErrorMessage("Invalid \"from\" number type \"" + arg_from + "\""); return; }
+					if (isNaN(charValue)) { vscode.window.showErrorMessage("Selection \"" + selectedText.charAt(cIndex) + "\" is not a \"" + arg_from + "\" number"); return; }
+					numbers.push(charValue);
+				}
+			}
+			else if (arg_splitter.length == 0)
+			{
+				let numValue: number|null = my_parseNumber(selectedText, arg_from);
+				if (numValue === null) { vscode.window.showErrorMessage("Invalid \"from\" number type \"" + arg_from + "\""); return; }
+				if (isNaN(numValue)) { vscode.window.showErrorMessage("Selection \"" + selectedText + "\" is not a \"" + arg_from + "\" number"); return; }
+				numbers.push(numValue);
+			}
+			else
+			{
+				let selectedParts: string[] = selectedText.split(arg_splitter);
+				selectedParts.forEach(selectedPart =>
+				{
+					let numValue: number|null = my_parseNumber(selectedPart, arg_from);
+					if (numValue === null) { vscode.window.showErrorMessage("Invalid \"from\" number type \"" + arg_from + "\""); return; }
+					if (isNaN(numValue)) { vscode.window.showErrorMessage("Selection \"" + selectedPart + "\" is not a \"" + arg_from + "\" number"); return; }
+					numbers.push(numValue);
+				});
+			}
+			
+			if (numbers.length == 0) { vscode.window.showErrorMessage("No numbers found to convert"); return; }
+			// if (numbers.length > 1) { vscode.window.showInformationMessage("Joiner: \"" + arg_joiner + "\""); }
+			
+			//check for valid "to" argument
+			let toCheckResult: string|null = my_encodeNumber(0, arg_to);
+			if (toCheckResult === "") { vscode.window.showErrorMessage("Invalid \"to\" number type \"" + arg_to + "\""); return; }
+			
+			var resultStr: string = "";
+			numbers.forEach(num =>
+			{
+				if (resultStr.length > 0) { resultStr += arg_joiner; }
+				// vscode.window.showInformationMessage("Encoding " + num + " in \"" + arg_to + "\"");
+				resultStr += arg_prefix + my_encodeNumber(num, arg_to);
+			});
+			// vscode.window.showInformationMessage("Final result: \"" + resultStr + "\"");
+			
+			edit.replace(sel, resultStr);
+		});
+	};
+	context.subscriptions.push(vscode.commands.registerTextEditorCommand('taylors-tools.convertNumber', convertNumber));
+	context.subscriptions.push(vscode.commands.registerTextEditorCommand('taylors-tools.convertHexToDec', (editor, edit, ...args) => {
+		args[0] = { "from": "hex", "to": "dec" };
+		convertNumber(editor, edit, ...args);
+	}));
+	context.subscriptions.push(vscode.commands.registerTextEditorCommand('taylors-tools.convertDecToHex', (editor, edit, ...args) => {
+		args[0] = { "from": "dec", "to": "hex", "prefix": "0x" };
+		convertNumber(editor, edit, ...args);
+	}));
+	context.subscriptions.push(vscode.commands.registerTextEditorCommand('taylors-tools.convertBinToHex', (editor, edit, ...args) => {
+		args[0] = { "from": "bin", "to": "hex", "prefix": "0x" };
+		convertNumber(editor, edit, ...args);
+	}));
+	context.subscriptions.push(vscode.commands.registerTextEditorCommand('taylors-tools.convertHexToBin', (editor, edit, ...args) => {
+		args[0] = { "from": "hex", "to": "bin", "prefix": "0b" };
+		convertNumber(editor, edit, ...args);
+	}));
+	context.subscriptions.push(vscode.commands.registerTextEditorCommand('taylors-tools.convertCharsToHex', (editor, edit, ...args) => {
+		args[0] = { "from": "ascii", "to": "hex", "prefix": "0x" };
+		convertNumber(editor, edit, ...args);
+	}));
+	context.subscriptions.push(vscode.commands.registerTextEditorCommand('taylors-tools.convertHexToChars', (editor, edit, ...args) => {
+		args[0] = { "from": "hex", "to": "ascii", "splitter": " ", "joiner": "" };
+		convertNumber(editor, edit, ...args);
 	}));
 }
 

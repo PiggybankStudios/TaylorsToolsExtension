@@ -2,25 +2,104 @@
 	"name": "taylors-tools",
 	"displayName": "TaylorsTools",
 	"description": "A collection of tools that replicate behavior I had in Sublime Text and other editors",
+	"homepage": "https://github.com/PiggybankStudios/TaylorsToolsExtension",
 	"repository": "https://github.com/PiggybankStudios/TaylorsToolsExtension",
-	"version": "0.0.2",
+	"version": "0.0.3",
+	"license": "MIT",
+	"author": "Taylor Robbins <robbitay@live.com> (https://www.robbitay.com/)",
 	"engines": {
 		"vscode": "^1.109.0"
 	},
+	"keywords": [
+		"sublime",
+		"commands",
+		"cursor",
+		"snippet"
+	],
 	"categories": [
 		"Other"
 	],
 	"activationEvents": [],
 	"main": "./dist/extension.js",
+	"files": [
+		"package.json",
+		"CHANGELOG.md",
+		"README.md",
+		"LICENSE.txt",
+		"dist/extension.js"
+	],
 	"contributes": {
 		"commands": [
 			{
 				"command": "taylors-tools.test",
-				"title": "Taylor: Test"
+				"category": "Taylor",
+				"title": "Test",
+				"icon": "$(snake)"
+			},
+			{
+				"command": "taylors-tools.centerScreen",
+				"title": "Center Screen",
+				"icon": "$(fold)"
 			},
 			{
 				"command": "taylors-tools.gotoEmptyLine",
-				"title": "Taylor: Goto Empty Line"
+				"title": "Goto Empty Line (Args)",
+				"icon": "$(debug-step-over)"
+			},
+			{
+				"command": "taylors-tools.gotoNextEmptyLine",
+				"title": "Goto Next Empty Line",
+				"icon": "$(debug-step-over)"
+			},
+			{
+				"command": "taylors-tools.gotoPrevEmptyLine",
+				"title": "Goto Previous Empty Line",
+				"icon": "$(debug-step-over)"
+			},
+			{
+				"command": "taylors-tools.gotoNextEmptyLineExtend",
+				"title": "Goto Next Empty Line (Extend Selection)",
+				"icon": "$(debug-step-over)"
+			},
+			{
+				"command": "taylors-tools.gotoPrevEmptyLineExtend",
+				"title": "Goto Previous Empty Line (Extend Selection)",
+				"icon": "$(debug-step-over)"
+			},
+			{
+				"command": "taylors-tools.convertNumber",
+				"title": "Convert Number (Args)",
+				"icon": "$(symbol-numeric)"
+			},
+			{
+				"command": "taylors-tools.convertHexToDec",
+				"title": "Convert Hexadecimal to Decimal",
+				"icon": "$(symbol-numeric)"
+			},
+			{
+				"command": "taylors-tools.convertDecToHex",
+				"title": "Convert Decimal to Hexadecimal",
+				"icon": "$(symbol-numeric)"
+			},
+			{
+				"command": "taylors-tools.convertBinToHex",
+				"title": "Convert Binary to Hexadecimal",
+				"icon": "$(symbol-numeric)"
+			},
+			{
+				"command": "taylors-tools.convertHexToBin",
+				"title": "Convert Hexadecimal to Binary",
+				"icon": "$(symbol-numeric)"
+			},
+			{
+				"command": "taylors-tools.convertCharsToHex",
+				"title": "Convert Characters to Hexadecimal",
+				"icon": "$(replace-all)"
+			},
+			{
+				"command": "taylors-tools.convertHexToChars",
+				"title": "Convert Hexadecimal to Characters",
+				"icon": "$(replace-all)"
 			}
 		]
 	},
