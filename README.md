@@ -22,11 +22,23 @@ A collection of commands that replicate behavior I had in Sublime Text and other
 
 **Baked Variants:** `taylors-tools.convertHexToDec`, `taylors-tools.convertDecToHex`, `taylors-tools.convertBinToHex`, `taylors-tools.convertHexToBin`, `taylors-tools.convertCharsToHex`, and `taylors-tools.convertHexToChars`
 
+`taylors-tools.generateNums` - Generate numbers at each cursor (multi-cursor expected) starting from some number and incrementing by some value between each cursor. The starting number and increment are given in a `"format"` string where the two options are separated by a `:` character. 
+The starting number can be an ASCII character like `"A"` to generate characters alphabetically. If the format string doesn't contain a `:` character than the increment is assumed to be `1`. If a format string is not given then a dialog will be shown when the command is invoked, asking the user for a format string
+
+**Baked Variants:** `taylors-tools.generateNumsFrom0` (`"format"`=`"0:1"`) and `taylors-tools.generateNumsFrom1` (`"format"`=`"1:1"`) and 
+
 ## Requirements
 
 Dev dependencies: Typescript, npm and Webpack
 
 ## Release Notes
+
+### v0.0.4
+
+Added `taylors-tools.generateNums` command with baked argument variants:
+
+* `taylors-tools.generateNumsFrom0` - `format`=`"0:1"`
+* `taylors-tools.generateNumsFrom1` - `format`=`"1:1"`
 
 ### v0.0.3
 

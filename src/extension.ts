@@ -50,6 +50,38 @@ function my_encodeNumber(num: number, numType: string) : string|null
 	else { return null; }
 }
 
+function getFormatGeneratedNum(format: string, numIndex: number) : string|null
+{
+	var startStr: string = format;
+	var incrementStr: string = "1";
+	if (format.includes(":"))
+	{
+		let formatParts: string[] = format.split(":");
+		if (formatParts.length != 2) { return null; }
+		startStr = formatParts[0];
+		incrementStr = formatParts[1];
+	}
+	
+	var generatingChars: Boolean = false;
+	var startNum: number|null = my_parseNumber(startStr, "dec");
+	if (startNum === null || isNaN(startNum)) { startNum = my_parseNumber(startStr, "ascii"); generatingChars = true; }
+	if (startNum === null || isNaN(startNum)) { return null; }
+	
+	var incrementNum: number|null = my_parseNumber(incrementStr, "dec");
+	if (incrementNum === null || isNaN(startNum)) { incrementNum = my_parseNumber(startStr, "ascii"); }
+	if (incrementNum === null || isNaN(startNum)) { return null; }
+	
+	let resultNum: number = startNum + incrementNum * numIndex;
+	if (generatingChars)
+	{
+		return my_encodeNumber(resultNum, "ascii");
+	}
+	else
+	{
+		return my_encodeNumber(resultNum, "dec");
+	}
+}
+
 // NOTE: Extension is activated the very first time a command is executed
 export function activate(context: vscode.ExtensionContext)
 {
@@ -228,6 +260,60 @@ export function activate(context: vscode.ExtensionContext)
 	context.subscriptions.push(vscode.commands.registerTextEditorCommand('taylors-tools.convertHexToChars', (editor, edit, ...args) => {
 		args[0] = { "from": "hex", "to": "ascii", "splitter": " ", "joiner": "" };
 		convertNumber(editor, edit, ...args);
+	}));
+	
+	// +--------------------------------------------------------------+
+	// |                  taylors-tools.generateNums                  |
+	// +--------------------------------------------------------------+
+	var generateNums = (textEditor: vscode.TextEditor, edit: vscode.TextEditorEdit, ...args: any[]) => {
+		var params: any = args[0];
+		//TODO: Maybe we want to always make numbers generate from first (topmost) selection down towards the bottom of the file.
+		//      Right now looping over selections seems to respect the order in which the selections were made
+		var arg_format: string = (params && params["format"]) ? String(params["format"]).toLowerCase() : "";
+		if (vscode.window.activeTextEditor)
+		{
+			if (arg_format.length > 0)
+			{
+				var testFormat: string|null = getFormatGeneratedNum(arg_format, 0);
+				if (testFormat === null) { vscode.window.showErrorMessage("Invalid generation format \"" + arg_format + "\""); return; }
+				
+				for (var sIndex = 0; sIndex < vscode.window.activeTextEditor!.selections.length; sIndex++)
+				{
+					let sel: vscode.Selection = vscode.window.activeTextEditor!.selections[sIndex];
+					edit.replace(sel, getFormatGeneratedNum(arg_format, sIndex)!);
+				}
+			}
+			else
+			{
+				vscode.window.showInputBox({ignoreFocusOut: true, placeHolder: "format (like 0:2 or A:1) [start]:[increment]", prompt: "Format:"})
+					.then((formatStr: string|undefined) => {
+					if (formatStr)
+					{
+						vscode.window.showInformationMessage("Generating numbers based off format \"" + formatStr + "\"");
+						
+						var testFormat: string|null = getFormatGeneratedNum(formatStr, 0);
+						if (testFormat === null) { vscode.window.showErrorMessage("Invalid generation format \"" + formatStr + "\""); return; }
+						
+						vscode.window.activeTextEditor!.edit((editBuilder) => {
+							for (var sIndex: number = 0; sIndex < vscode.window.activeTextEditor!.selections.length; sIndex++)
+							{
+								let sel: vscode.Selection = vscode.window.activeTextEditor!.selections[sIndex];
+								editBuilder.replace(sel, getFormatGeneratedNum(formatStr, sIndex)!);
+							}
+						});
+					}
+				});
+			}
+		}
+	};
+	context.subscriptions.push(vscode.commands.registerTextEditorCommand('taylors-tools.generateNums', generateNums));
+	context.subscriptions.push(vscode.commands.registerTextEditorCommand('taylors-tools.generateNumsFrom0', (textEditor, edit, ...args) => {
+		args[0] = { "format": "0:1" };
+		generateNums(textEditor, edit, ...args);
+	}));
+	context.subscriptions.push(vscode.commands.registerTextEditorCommand('taylors-tools.generateNumsFrom1', (textEditor, edit, ...args) => {
+		args[0] = { "format": "1:1" };
+		generateNums(textEditor, edit, ...args);
 	}));
 }
 

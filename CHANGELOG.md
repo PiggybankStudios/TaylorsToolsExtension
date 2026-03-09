@@ -1,5 +1,12 @@
 # Change Log
 
+### v0.0.4
+
+Added `taylors-tools.generateNums` command with baked argument variants:
+
+* `taylors-tools.generateNumsFrom0` - `format`=`"0:1"`
+* `taylors-tools.generateNumsFrom1` - `format`=`"1:1"`
+
 ### v0.0.3
 
 Added `taylors-tools.centerScreen` command

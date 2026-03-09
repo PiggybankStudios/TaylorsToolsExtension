@@ -4,7 +4,7 @@
 	"description": "A collection of tools that replicate behavior I had in Sublime Text and other editors",
 	"homepage": "https://github.com/PiggybankStudios/TaylorsToolsExtension",
 	"repository": "https://github.com/PiggybankStudios/TaylorsToolsExtension",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"license": "MIT",
 	"author": "Taylor Robbins <robbitay@live.com> (https://www.robbitay.com/)",
 	"engines": {
@@ -99,6 +99,21 @@
 			{
 				"command": "taylors-tools.convertHexToChars",
 				"title": "Convert Hexadecimal to Characters",
+				"icon": "$(replace-all)"
+			},
+			{
+				"command": "taylors-tools.generateNums",
+				"title": "Generate Numbers...",
+				"icon": "$(replace-all)"
+			},
+			{
+				"command": "taylors-tools.generateNumsFrom0",
+				"title": "Generate Numbers (Starting from 0)",
+				"icon": "$(replace-all)"
+			},
+			{
+				"command": "taylors-tools.generateNumsFrom1",
+				"title": "Generate Numbers (Starting from 1)",
 				"icon": "$(replace-all)"
 			}
 		]
